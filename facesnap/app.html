@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Detection Photo App</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    #video, #canvas {
+      border-radius: 10px;
+      margin: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+    #sticker {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Face Detection Photo App</h1>
+  <video id="video" width="640" height="480" autoplay muted></video><br>
+  <canvas id="canvas" width="640" height="480"></canvas><br>
+  <button onclick="capturePhoto()">📸 Capture Photo</button>
+  <button onclick="downloadImage()">💾 Download</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    async function startVideo() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+      video.srcObject = stream;
+    }
+
+    async function loadModels() {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/models');
+    }
+
+    async function capturePhoto() {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const detections = await faceapi.detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions());
+      detections.forEach(detection => {
+        const { x, y, width, height } = detection.box;
+        context.strokeStyle = '#00FF00';
+        context.lineWidth = 2;
+        context.strokeRect(x, y, width, height);
+        // Add sticker (example: sunglasses emoji)
+        context.font = '30px Arial';
+        context.fillText('🕶️', x + width / 4, y + height / 2);
+      });
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'face-photo.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    loadModels().then(startVideo);
+  </script>
+</body>
+</html>
