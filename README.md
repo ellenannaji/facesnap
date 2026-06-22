@@ -1,4 +1,4 @@
-# facesnap
+
 # FaceSnap - Face Recognition System 🤖
 
 FaceSnap is a computer vision-based face recognition application that enables automated face detection and identification using image processing techniques and machine learning algorithms.
